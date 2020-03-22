@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MOON</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+</head>
+<body class="bg-c">
+	<div class="container-fluid" id="app">
+		<div class="row">
+			<div class="col text-center bg-success text-white shadow">模 块 二</div>
+		</div>
+		<button class="btn btn-info" onclick="getweather()">天气预报</button>
+		<button class="btn btn-info" onclick="getlinda()">林大不给提供</button>
+		<button class="btn btn-info" onclick="getstu()">后台处理jsonp，这个跨域的，在boot-mybatis的m1里面</button>
+		<button class="btn btn-info" onclick="jsonp()">模仿jsonp</button>
+	</div>
+	<!-- js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:inline="javascript">
+		//
+		function jsonp(){
+			var src='<script src="http://localhost:8000/yy/Student/getstu?id=3&callback=wangwenjing"><\/script>'
+			alert(src);
+		}
+		function wangwenjing(data){
+			console.log(data);
+		}
+		function getlinda(){
+			$.post("http://192.168.1.88:8000/moon/Employee/show_emp_by_title_and_sex_for_page",
+					{title : "讲师",
+				sex : "男",
+				currentPage:1,
+				pageSize:5},
+					function(data){
+						alert(data);
+						console.log(data);
+					},"jsonp")
+		}
+		
+ 	function getstu(){
+			$.post("/yy/Student/getstu",
+					{id:3},
+					function(data){
+						alert(data);
+						console.log(data);
+					},"jsonp")
+		} 
+		function getweather(){
+			$.post("http://v.juhe.cn/weather/index?format=2",
+					{
+				//format:2,
+				cityname:"上海",
+				key:"94262609efeb0b84c91cba5ecfbbf265"},
+					function(data){
+					console.log(data);
+					},"jsonp") 
+					
+			
+		/* 			
+					$.ajax({
+						url:"http://v.juhe.cn/weather/index?format=2",//请求的路由地址
+						type:"get",//请求的方式
+						async:true,//异步请求控制开关，默认为true
+						data:{cityname:"北京",
+							key:"94262609efeb0b84c91cba5ecfbbf265"},
+						dataType:"jsonp",//接受服务器响应的类型,text,html.json，jsonp（跨域访问）
+						success:function(resp){//成功获取响应
+							console.log(resp);
+							alert(JSON.stringify(resp));
+								},
+						error:function(){
+							//1.url匹配不到路由404
+							//2.服务器端的任何异常都会进入error
+							//3.服务器返回类型和期待类型不一样
+						
+							alert("异常");
+						}
+				});  */
+
+		}
+		
+		
+	</script>
+</body>
+</html>

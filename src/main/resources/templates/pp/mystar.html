@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>我的收藏</title>
+	<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+	<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+	<link rel="stylesheet" th:href="@{/date/flatpickr.css}" />
+</head>
+<body class="bg-c">
+	<div class="container-fluid" id="app">
+		<div class="row">
+			<div class="col text-center bg-warning text-white shadow">我的收藏</div>
+		</div>
+		<div class="form-inline mt-3">
+			<!-- 收藏时间-->
+			拍卖时间：<input class="flatpickr form-control form-control-sm"
+				id="beginTime"> <span>&nbsp;&nbsp;&nbsp;至&nbsp;&nbsp;&nbsp;</span>
+			<input class="flatpickr form-control form-control-sm" id="endTime">
+			<button class="btn btn-sm btn-info" @click="getmystar(1)">
+			<i class="fa fa-search" aria-hidden="true"></i></button>
+		</div>
+			<div class="mt-2">
+				<table class="table">
+					<tr>
+						<th>商品</th>
+						<th>商品名称</th>
+						<th>起拍价</th>
+						<th>截止时间</th>
+						<th>最小加价</th>
+						<th>状态</th>
+						<th>详情</th>
+						<th>操作</th>
+					</tr>
+					<tr v-for="mypro in myproductdata">
+						<td><img alt="" :src="mypro.img|imgfilter" width="50px"></td>
+						<td><a :href="'detail?id='+mypro.id">{{mypro.pname}}</a></td>
+						<td>{{mypro.price}}</td>
+						<td>{{mypro.time|dateTime}}</td>
+						<td>{{mypro.minimumAdd}}</td>
+						<td>{{mypro.state}}</td>
+						<td><a id="detail" href="javascript:;" @click="getHistory(mypro.id)">出价详情</a></td>
+						<td><button class="btn btn-sm bg-info" @click="updatestar(mypro.id,$event)">取消收藏</button></td>
+					</tr>
+				</table>
+			</div>
+		<div class="mt-1" style="margin-left: 30%">
+			<div id="pager" class="pagination"></div>
+		</div>
+	</div>
+	<!-- js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/date/flatpickr.js}"></script>
+	<script th:src="@{/page/jqpaginator.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/moon/js/moment.min.js}"></script>
+	<script th:inline="javascript">
+		var app = new Vue({
+			el : "#app",
+			data : {
+				myproductdata : []
+			},
+			methods : {
+				getmystar:function(num){
+					$.post("/pp/Star/getmystarpro",
+							{
+							beginTime : $('#beginTime').val(),
+							endTime : $('#endTime').val(),
+							page : num
+							},function(data){
+								app.myproductdata=data.list;
+							})
+							
+				},
+				getHistory:function(id){
+					layer.open({
+						type : 2,
+						title : "拍卖详情",
+						content : "/history?id="+id,
+						area : [ "80%", "90%" ],
+						//offset : "50px",
+						anim : 2,
+					});
+				},
+				updatestar:function (pid,e) {
+					var del=$(e.currentTarget);
+						 $.post("/pp/Star/updatestar", {
+							pid : pid
+						}, function(data) {
+							if (data == "取消收藏成功")
+								del.parent().parent().remove();
+							layer.msg(data);
+							
+						});
+				}
+				
+			},
+			filters:{
+				dateTime: function(value){
+					return value == null ? '' : moment(value).format('YYYY-MM-DD HH:mm:ss');
+					},
+				date: function(value){
+				return value == null ? '' : moment(value).format('YYYY-MM-DD');
+				},
+				imgfilter : function(value) {
+					if (value != null) {
+						var ss = value.split(',')[0];
+						return "http://127.0.0.1/pro_img/" + ss;
+					}
+				}
+			},
+			mounted:function(){
+				this.getmystar();
+			}
+		});
+		$('#pager').jqPaginator({
+			totalPages : 1,
+			currentPage : 1,
+			onPageChange : function(num, type) {
+				pageNUM=num;
+				app.getmystar(num);
+			}
+		});
+		function test(e){
+			alert($(e).html());
+		}
+		//开启日期插件
+		//日期插件
+		$('#beginTime').flatpickr();
+		$('#endTime').flatpickr();
+		
+	</script>
+</body>
+</html>

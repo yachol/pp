@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>更新</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+</head>
+<body class="bg-b">
+	<div class="container-fluid mt-5" id="app">
+		<div class="row">
+			<div class="col-sm-8 offset-sm-2">
+				<div class="card border-light">
+					<div class="card-header text-center bg-info text-white">
+						<i class="fa fa-gavel" aria-hidden="true"></i> &nbsp;蜗牛拍拍/个人信息修改
+					</div>
+					<form action="/moon/SysUser/register" class=" card card-body"
+						id="form-reg" method="POST">
+						<table class="table table-light">
+							<TBODY>
+								<tr>
+									<td class="text-right">登录名<small>|6-18位字母数字</small></td>
+									<td><input class="form-control form-control-sm"
+										maxlength="18" minlength="6" name="uname" id="uname"
+										required="" type="text" :value="user.uname"/></td>
+								</tr>
+								<tr>
+									<td class="text-right">密码<small>|6-16位字母数字</small></td>
+									<td><input class="form-control form-control-sm"
+										maxlength="16" minlength="6" id="password" name="password"
+										required="" type="password" :value="user.password"/></td>
+								</tr>
+								<tr>
+									<td class="text-right">重复密码</td>
+									<td><input class="form-control form-control-sm"
+										maxlength="16" minlength="6" id="repass" name="repass"
+										required="" type="password"  :value="user.password"/></td>
+								</tr>
+								<tr>
+									<td class="text-right">电子邮箱</td>
+									<td><input class="form-control form-control-sm"
+										email="true" id="email" name="email" required="" type="text" :value="user.email"/></td>
+
+
+									<td></td>
+								</tr>
+								
+
+								<tr>
+									<td></td>
+									<td><button class="btn btn-outline-info ml-3"
+											type="button" onclick="update()">更新</button>&nbsp;</td>
+								</tr>
+							</TBODY>
+
+
+						</table>
+						<div class="mt-5"></div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/jqform/jquery.form.js}"></script>
+	<script th:inline="javascript">
+	var app = new Vue({
+		el:"#app",
+		data:{
+			user:[[${session.user}]]
+		}
+	})
+	
+	//更新
+	function update(){
+		$.post("/pp/User/updateinfo",{
+		uname:$('#uname').val(),
+		password:$('#password').val(),
+		repass:$('#repass').val(),
+		email:$('#email').val(),
+		},function(data){
+			layer.msg(data);
+		})
+	}
+	</script>
+</body>
+</html>

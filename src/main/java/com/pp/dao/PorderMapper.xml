@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pp.dao.PorderMapper">
+  <resultMap id="BaseResultMap" type="com.pp.entity.Porder">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="no" jdbcType="VARCHAR" property="no" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="pname" jdbcType="VARCHAR" property="pname" />
+    <result column="buyid" jdbcType="INTEGER" property="buyid" />
+    <result column="saleid" jdbcType="INTEGER" property="saleid" />
+    <result column="old_pricce" jdbcType="DECIMAL" property="oldPricce" />
+    <result column="pay_price" jdbcType="DECIMAL" property="payPrice" />
+    <result column="pp_time" jdbcType="TIMESTAMP" property="ppTime" />
+    <result column="porder_time" jdbcType="TIMESTAMP" property="porderTime" />
+    <result column="aid" jdbcType="INTEGER" property="aid" />
+    <result column="adress" jdbcType="VARCHAR" property="adress" />
+    <result column="state" jdbcType="VARCHAR" property="state" />
+  </resultMap>
+</mapper>

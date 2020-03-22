@@ -1,0 +1,53 @@
+.active {
+	border: 1px solid gray;
+}
+
+.Xcontent30 {
+	width: 554px;
+	height: 100px;
+	overflow: hidden;
+}
+
+.Xcontent31 {
+	font-family: "微软雅黑";
+	font-size: 32px;
+	color: #605f5f;
+	line-height: 100px;
+	margin-left: 16px;
+	margin-top: 10px;
+	float: left;
+}
+
+.Xcontent32 {
+	float: left;
+	margin-top: 34px;
+	margin-left: 30px;
+}
+
+.input {
+	height: 50px;
+	width: 200px;
+	margin-top: 34px;
+	border: 1px solid #dddddd;
+	line-height: 30px;
+	text-align: center;
+	float: left;
+	font-Size: 40px;
+}
+
+.Xcontent33>img {
+	float: left;
+	height: 50px;
+	margin-top: 34px;
+}
+
+.Xcontent32>img {
+	height: 50px;
+}
+.star{
+	 background-color: #696969;
+	 color: #fff;
+	 position:absolute;
+	 right:4%; 
+	 bottom:20%; 
+}

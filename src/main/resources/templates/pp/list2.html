@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MOON</title>
+<link rel="stylesheet" th:href="@{/moon/css/product.css}" />
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+</head>
+<body class="bg-c">
+	<div class="container-fluid" id="app">
+	<div class="form-inline mt-2 mb-2 center">
+			
+				区域:&nbsp;&nbsp; 
+				<div data-toggle="distpicker">
+					<label class="sr-only" for="province1">Province</label>
+					<select class="form-control  form-control-sm" v-model="province"></select>
+					<label class="sr-only" for="city1">City</label>
+					<select class="form-control  form-control-sm" v-model="city"></select>
+					&nbsp;&nbsp; 
+				</div>
+				状态：<select class="form-control  form-control-sm"
+				v-model="state">
+				<option value="" selected="selected">全部</option>
+				<option value="拍卖">正在拍卖</option>
+				<option value="卖出">已卖出</option>
+				<option value="流拍">流拍</option>
+				</select>&nbsp;&nbsp; 
+				<input type="text" class="form-control  form-control-sm"
+					v-model="pname" placeholder="请输入关键词"/> &nbsp;&nbsp; 
+				<button class="btn btn-sm btn-info ml-2" id="find"
+					@click="getproducts(1)">查询</button>
+		</div>
+		<div class="row">
+			<div class="col text-center bg-warning text-white shadow">人气拍卖</div>
+		</div>
+		<div class="row">
+			<div class="col-md-3 col-sm-6 mb-4" v-for="product in circuseelist"
+				@click="detail(product.id)">
+				<div class="product-grid">
+					<p v-if="product.state=='拍卖'" style="color:red">{{product.state}}</p>
+					<p v-else style="color:dark-gray">{{product.state}}</p>
+					<div v-if="product.img!=''" class="product-image"style="width:270px;height:270px;overflow:hidden">
+						<img class="pic-1" :src="product.img|imgfilter"> <img
+							class="pic-2" :src="product.img|imgfilter1">
+					</div>
+					<div class="product-content">
+						<span class="price text-center">￥{{product.price}}</span> 
+						<span class="title">{{product.pname}}</span>
+						<h5 class="text-center" style="color: orange">{{product.time|dateTime}}</h5>
+						<span class="add-to-cart text-center">
+						<i class="fa fa-gavel" aria-hidden="true"></i></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col text-center bg-danger text-white shadow">全部商品</div>
+		</div>
+		
+		
+		<div class="row">
+		
+			<div class="col-md-3 col-sm-6 mb-4" v-for="product in productslist"
+				@click="detail(product.id)">
+				<div class="product-grid">
+					<p v-if="product.state=='拍卖'" style="color:red">{{product.state}}</p>
+					<p v-else style="color:dark-gray">{{product.state}}</p>
+					<div v-if="product.img!=''" class="product-image" style="width:270px;height:270px;overflow:hidden">
+						<img class="pic-1" :src="product.img|imgfilter"> <img
+							class="pic-2" :src="product.img|imgfilter1">
+					</div>
+					<div class="product-content">
+						<span class="price text-center">￥{{product.price}}</span> 
+						<span class="title">{{product.pname}}</span>
+						<h5 class="text-center" style="color: orange">{{product.time|dateTime}}</h5>
+						<span  class="add-to-cart text-center" @mouseenter="incircusee(this,product.id);"@mouseleave="outcircusee()">
+						<i class="fa fa-eye" aria-hidden="true" id="view"></i></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="mt-1" style="margin-left: 30%">
+			<div id="pager" class="pagination"></div>
+		</div>
+	</div>
+	<!-- js -->
+
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/page/jqpaginator.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/moon/js/moment.min.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/adress/distpicker.data.min.js}"></script>
+	<script th:src="@{/adress/distpicker.min.js}"></script>
+	<!-- 	<script th:src="@{/moon/js/require.js}"></script> -->
+	<script th:inline="javascript">
+		//
+		var app = new Vue({
+			el : "#app",
+			data : {
+				productslist : [],
+				circuseelist:[],
+				pname : "",
+				state : "",
+				birth : "",
+				department : "",
+				province:"",
+				city:""
+			},
+			methods : {
+				getproducts : function(num) {
+					$.post("/pp/Product/getproducts", {
+						name : this.pname,
+						state : this.state,
+						page : num,
+						area:(this.province+this.city)
+					}, function(data) {
+						//app.studentslist=data;
+						//alert(JSON.stringify(data));
+						app.productslist = data.page.list;
+						if (data.page.pagecount == 0)
+							data.page.pagecount = 1;
+						$('#pager').jqPaginator('option', {
+							totalPages : data.page.pagecount,
+							currentPage : num
+						});
+					})
+				},
+				getcircusee : function() {
+					$.post("/pp/Product/getcircusee", {
+						
+					}, function(data) {
+						//app.studentslist=data;
+						//alert(JSON.stringify(data));
+						app.circuseelist = data;
+					})
+				},
+				detail : function(value) {
+					location.href = "detail?id=" + value;
+				},
+				incircusee:function(e,pid){
+					//alert($(e).html());
+					
+					//alert();
+					//$(e).empty();
+					//$('#view').html("3");
+				},
+				outcircusee:function(){
+					//$('#view').show();
+				}
+			},
+			filters : {
+				dateTime : function(value) {
+					return value == null ? '' : moment(value).format(
+							'YYYY-MM-DD HH:mm:ss');
+				},
+				date : function(value) {
+					return value == null ? '' : moment(value).format(
+							'YYYY-MM-DD');
+				},
+				imgfilter : function(value) {
+					if (value != null) {
+						var ss = value.split(',')[0];
+						return "http://127.0.0.1/pro_img/" + ss;
+					}
+				},
+				imgfilter1 : function(value) {
+					//alert(value);
+					if (value != null) {
+						var ss = value.split(',')[1];
+						return "http://127.0.0.1/pro_img/" + ss;
+					}
+
+				}
+			},
+			mounted : function() {
+				this.getproducts(1);
+				this.getcircusee();
+			}
+		})
+		$('#pager').jqPaginator({
+			totalPages : 1,
+			currentPage : 1,
+			onPageChange : function(num, type) {
+				app.getproducts(num);
+			}
+		});
+	</script>
+</body>
+</html>

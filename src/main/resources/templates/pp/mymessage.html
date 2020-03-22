@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>我的消息</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/moon/css/mymessage.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+</head>
+<body>
+	<div class="container-fluid h-100" id="app">
+		<div class="row">
+			<ul class="col-2 offset-1">
+				<li v-for="chat in chatlist">
+					<div v-bind:class="{ active: chat.fuid==tid }" :tuid="chat.fuid"
+						:id="chat.mid" @click="choose(chat.fuid,chat.mid)">
+						<span>{{chat.funame}}</span>&nbsp;&nbsp;&nbsp; <span
+							v-bind:class="{ unread: chat.unread!=0 }">{{chat.unread}}</span>
+					</div>
+				</li>
+			</ul>
+			<div class="col-8 h-100 mr-5">
+				<div id="chatbox" class="border p-1"
+					style="height: 500px; overflow: auto;">
+					<div v-for="m in messages">
+						<div class="card">
+							<div class="card-header" v-if="m.name!='小拍'">{{m.name}}&nbsp;:&nbsp;{{m.time|dateTime}}</div>
+							<div class="card-header" v-else><a :href="m.fid|detail">点击这里-->去瞅瞅&nbsp;</a></div>
+							<div class="card-body">{{m.text}}</div>
+						</div>
+					</div>
+				</div>
+				<div>
+					<input id="msg" type="text" class="form-control form-control-sm" />
+				</div>
+				<div>
+					<button class="btn btn-sm btn-success" @click="sendmsg();">发送</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/moon/js/moment.min.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/moon/js/bootstrap.js}"></script>
+	<script th:inline="javascript">
+	var id=window.location.search.substring(4);
+	//alert(id)
+	var app = new Vue(
+			{
+				el : "#app",
+				data : {
+					tid:id,
+					chatlist:[],
+					messages:[],
+					mid:""
+				},
+				methods:{
+					getchatlist:function(){
+						$.post("/pp/Chat/getbyTouid",
+								{id1:this.tid},
+								function(data){
+									console.log(JSON.stringify(data));
+									app.chatlist=data;
+								})
+					},
+					getmessages:function(){
+						$.post("/pp/Chat/getmessagesbytid",
+								{
+									id1:this.tid
+								},
+								function(data){
+									console.log(JSON.stringify("messages"+data));
+									app.messages=data;
+								})
+					},
+					choose:function(tid,mid){
+						this.tid=tid;
+						this.mid=mid;
+						$('#'+mid).children().eq(1).attr("class","");
+						$('#'+mid).children().eq(1).text(0);
+						$.post("/pp/Chat/getmessagesbymid",{
+							"mid":mid
+						},function(data){
+							console.log(JSON.stringify(data));
+							app.messages=data;
+						})
+					},
+					sendmsg:function (){
+						$('#msg').val("");
+						 ws.send('{"tid":"'+app.tid+'","fid":"'+
+							 [[${session.user.id}]]+'","mid":"'+$(".active").attr("id")
+							 +'","name":"'+[[${session.user.uname}]]+'","text":"'+$("#msg").val()+'"}');
+						 this.messages.push({"tid":$(".active").attr("tuid"),"fid":
+							 [[${session.user.id}]],"mid":$(".active").attr("id")
+							 ,"name":[[${session.user.uname}]],"text":$("#msg").val()});
+					}
+				},
+				filters : {
+					dateTime : function(value) {
+						return value == null ? '' : moment(value).format(
+								'YYYY-MM-DD HH:mm:ss');
+					},
+					date : function(value) {
+						return value == null ? '' : moment(value).format(
+								'YYYY-MM-DD');
+					},
+					detail:function(value){
+						return "detail?id="+value;
+					}
+				},
+				mounted:function(){
+					this.getchatlist();
+					this.getmessages();
+				}
+			});
+
+	//websocket
+	//alert(location.host);
+ 	var api="ws://"+location.host+"/sendmessage/"+[[${session.user.id}]];
+	var ws = new WebSocket(api); 
+	
+	ws.onopen = function() {
+		 console.log("mws打开");
+	}
+	ws.onclose = function() {
+		 console.log( "mws关闭");
+	}
+	ws.onmessage=function(msg){
+		 console.log("m接收到消息"+msg.data);
+		 var message=JSON.parse(msg.data);
+		 var remid=message.mid;
+			 if(app.mid!=remid){
+				 console.log("app.mid!=remid")
+				 var count=0;
+				 app.chatlist.forEach((chat)=>{
+					 if(chat.mid==remid){
+						 console.log("chat.mid=remid")
+						 count=1;
+						 var receive=$('#'+chat.mid).children().eq(1);
+						 var unread=parseInt(receive.text())+1;
+						 console.log($('#'+chat.mid).html());
+						 console.log(unread);
+						 receive.text(unread);
+						 receive.attr("class","unread");
+						 return;
+					 }
+				 })
+				 if(count==0){
+					 app.chatlist.push({"funame":message.name,"fuid":message.fid,
+						 "tuid":message.tid,"unread":1,"mid":remid}) 
+				 }
+			 }else{
+				 console.log("app.mid==remid")
+				 app.messages.push(message);
+			 }
+			 
+	}
+	ws.onerror = function() {
+         console.log("websocket发生了错误");
+     }
+	
+	 
+	</script>
+</body>
+</html>

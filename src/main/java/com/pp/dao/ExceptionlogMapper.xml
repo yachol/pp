@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pp.dao.ExceptionlogMapper">
+  <resultMap id="BaseResultMap" type="com.pp.entity.Exceptionlog">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="exc_id" jdbcType="VARCHAR" property="excId" />
+    <result column="exc_name" jdbcType="VARCHAR" property="excName" />
+    <result column="oper_user_id" jdbcType="VARCHAR" property="operUserId" />
+    <result column="oper_user_name" jdbcType="VARCHAR" property="operUserName" />
+    <result column="oper_method" jdbcType="VARCHAR" property="operMethod" />
+    <result column="oper_uri" jdbcType="VARCHAR" property="operUri" />
+    <result column="oper_ip" jdbcType="VARCHAR" property="operIp" />
+    <result column="oper_ver" jdbcType="VARCHAR" property="operVer" />
+    <result column="oper_create_time" jdbcType="TIMESTAMP" property="operCreateTime" />
+    <result column="exc_requ_param" jdbcType="LONGVARCHAR" property="excRequParam" />
+    <result column="exc_message" jdbcType="LONGVARCHAR" property="excMessage" />
+  </resultMap>
+</mapper>

@@ -1,0 +1,30 @@
+
+.one{width: 350px; height: 350px; border: 1px solid #CCCCCC; position: relative;}
+.one span{
+	width: 175px;
+	height: 175px;
+	position: absolute;
+	border: 1px solid #AFAFAF;
+	top: 0;
+	left: 0;
+	display: none
+}
+.one:hover span{display:block; background-image:url(../bg.png)}
+.wai{float: left;}
+.two{ padding: 30px 0 0 50px;}
+.two img{border: 1px solid #ccc;}
+.two .active{border: 1px solid red;}
+.two img:hover{border: 1px solid red;}
+.the{
+	width: 400px;
+	height: 400px;
+	position: absolute;
+	top:0px;
+	right: -380px;
+	z-index:2;
+	overflow: hidden;
+	border: 1px solid red;
+	display: none;
+}
+.the img{position: absolute;
+ 		display: block;}

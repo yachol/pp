@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MOON</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+</head>
+<body class="bg-c">
+	<div class="container-fluid" id="app">
+		<div class="row">
+			<div class="col text-center bg-warning text-white shadow">我的订单</div>
+		</div>
+			<div class="mt-2">
+				<table class="table">
+					<tr>
+						<th>编号</th>
+						<th>商品</th>
+						<th>起拍价</th>
+						<th>成交价</th>
+						<th>出价时间</th>
+						<th>订单时间</th>
+						<th>地址</th>
+					</tr>
+					<tr v-for="order in orderdata">
+						<td>{{order.no}}</td>
+						<td><a :href="'detail?id='+order.pid">{{order.pname}}</a></td>
+						<td>{{order.oldPricce}}</td>
+						<td>{{order.payPrice}}</td>
+						<td>{{order.ppTime|dateTime}}</td>
+						<td>{{order.porderTime|dateTime}}</td>
+						<td>{{order.adress}}</td>
+					</tr>
+				</table>
+			</div>
+		
+	</div>
+	<!-- js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/moon/js/moment.min.js}"></script>
+	<script th:inline="javascript">
+		//
+		var app = new Vue({
+			el : "#app",
+			data : {
+				orderdata : []
+			},
+			methods : {
+				getorder:function(){
+					$.post("/pp/Porder/getpordersale",
+							{
+						
+							},function(data){
+								app.orderdata=data;
+							})
+							
+				}
+			},
+			filters:{
+				dateTime: function(value){
+					return value == null ? '' : moment(value).format('YYYY-MM-DD HH:mm:ss');
+					},
+				date: function(value){
+				return value == null ? '' : moment(value).format('YYYY-MM-DD');
+				}
+			},
+			mounted:function(){
+				this.getorder();
+			}
+		})
+	</script>
+</body>
+</html>

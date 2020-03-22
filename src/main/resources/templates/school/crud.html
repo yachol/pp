@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MOON</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+</head>
+<body class="bg-b">
+	<div class="container-fluid" id="app">
+		<div class="row">
+			<div class="col text-center bg-danger text-white shadow p-2">CRUD</div>
+		</div>
+		<div class="form-inline mt-2" >
+			<input class="form-control" type="text" placeholder="姓名" v-model="name">
+			<select  class="form-control"  name="sex" v-model="sex">
+				<option value="" selected="selected">外星人</option>
+				<option value="男" >男</option>
+				<option value="女">女</option>
+			</select>
+			<input class="form-control" type="date" placeholder="生日" v-model="birth">
+			<input class="form-control" type="text" placeholder="院系"v-model="department">
+			<button class="btn btn-outline-info" @click="getstudents(1)">查询</button>
+		</div>
+		<div>{{name}}</div>
+		<table class="table table-striped" id="res">
+			<tr>
+				<th>id</th>
+				<th>姓名</th>
+				<th>性别</th>
+				<th>生日</th>
+				<th>院系</th>
+				<th>地址</th>
+			</tr>
+		 	<tr v-for="stu in studentslist">
+					<td>{{stu.id}}</td>
+					<td>{{stu.name}}</td>
+					<td>{{stu.sex}}</td>
+					<td>{{stu.birth}}</td>
+					<td>{{stu.department}}</td>
+					<td>{{stu.address}}</td>
+			</tr>
+			
+		<!-- 	<tr>
+					<td>{{mypage.id}}</td>
+					<td>{{mypage.name}}</td>
+					<td>{{mypage.sex}}</td>
+					<td>{{mypage.birth}}</td>
+					<td>{{mypage.department}}</td>
+					<td>{{mypage.address}}</td>
+			</tr> -->
+		</table>
+		
+		<div class="mt-1">
+			<div id="pager" class="pagination"></div>
+		</div>
+		
+	</div>
+
+	
+	<!-- js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/page/jqpaginator.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:inline="javascript">
+		//我的js
+		var app = new Vue({
+			el:"#app",
+			data:{
+				studentslist:[],
+				mypage:{},
+				name:"",
+				sex:"",
+				birth:"",
+				department:""
+			},
+			methods:{
+				getstudents:function(num){
+					$.post("/yy/Student/getstudents",
+					{
+						name:this.name,
+						sex:this.sex,
+						birth:this.birth,
+						department:this.department,
+						page:num
+					},function(data){
+						//app.studentslist=data;
+						app.studentslist=data.list;
+						$("#res").slideUp().slideDown(500);
+						//alert(1111);
+						$('#pager').jqPaginator('option', {
+							totalPages: data.pagecount,
+							currentPage:num
+							
+						});
+					})
+				}
+			},
+			mounted:function(){
+				this.getstudents(1);
+			}
+		})
+		$('#pager').jqPaginator({
+		    totalPages: 100,
+		    currentPage: 1,
+		    onPageChange: function (num, type) {
+		       //alert(type)change
+		    	app.getstudents(num);
+		    }
+		});
+	</script>
+</body>
+</html>

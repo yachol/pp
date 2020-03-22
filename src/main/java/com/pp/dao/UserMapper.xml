@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pp.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="com.pp.entity.User">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="uname" jdbcType="VARCHAR" property="uname" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="regist_time" jdbcType="DATE" property="registTime" />
+    <result column="sessionid" jdbcType="VARCHAR" property="sessionid" />
+    <result column="balance" jdbcType="DECIMAL" property="balance" />
+  </resultMap>
+  <!-- public User selectByUname(String uname); -->
+  <select id="selectByUname" parameterType="string" resultMap="BaseResultMap">
+  	select * from user where uname=#{uname}
+  </select>
+</mapper>

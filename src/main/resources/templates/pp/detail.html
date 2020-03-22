@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>详情</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/moon/css/detail.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+<link rel="stylesheet" th:href="@{/timeto/timeTo.css}" />
+<style type="text/css">
+</style>
+</head>
+<body class="s">
+	<div class="container-fluid" id="app">
+		<div class="row mt-2">
+			<!-- <div class="col text-center bg-warning text-white shadow">{{product.pname}}</div> -->
+			<div class="col-4">
+				<div>
+					<div @mouseenter="instar();" @mouseleave="outstar();"
+						@click="updatestar"
+						style="width: 404px; height: 404px; overflow: hidden">
+						<img id="bigimg" alt="" v-if="imgs!=''"
+							:src="'http://127.0.0.1/pro_img/'+imgs[0]" width="100%"
+							height="auto">
+						<div id="star"></div>
+					</div>
+					<div class="mt-2 myimgs"
+						style="width: 404px; height: 101px; overflow: hidden">
+						<img class="myimg" @click="myimg(this,img)"
+							v-for="(img,index) in imgs" alt=""
+							:src="'http://127.0.0.1/pro_img/'+img" width="25%" height="auto">
+					</div>
+				</div>
+			</div>
+			<div class="col-7 mr-5">
+				<div class="">
+					<h3 class="h3">{{product.pname}}</h3>
+					<div class="row text-bottom">
+						<div class="col-8 " v-if="product.state!='拍卖'">
+							<p>拍卖已结束</p>
+						</div>
+						<div class="col-8 " id="countdown"></div>
+						<span class="col-4 mt-3" v-if="history!=''">当前价格:{{history[0].price}}元</span>
+						<span class="col-4 mt-3" v-else>当前价格:{{product.price}}元</span>
+					</div>
+					<div class="card mt-3  bg-light text-black">
+						<div class="row">
+							<div class="col-7">
+								<div class="Xcontent30" style="margin-top: -20px">
+									<!-- th:text="${session.user}==null?'账号':${session.user.uname}" -->
+									<p class="Xcontent31">加价:</p>
+									<div class="Xcontent32">
+										<img src="http://localhost/shangpinxiangqing/jian.png"
+											@click="jian()">
+									</div>
+									<form>
+										<!-- :value="history[0].price" -->
+										<input class="input" id="addprice" :value="currenprice">
+										<!-- :value="history[0]==null?product.price:history[0].price" -->
+									</form>
+									<div class="Xcontent33">
+										<img src="http://localhost/shangpinxiangqing/jia.png"
+											@click="jia()">
+									</div>
+								</div>
+							</div>
+							<span class="col-4 mt-5" v-if="history!=''" id="myprice">您的出价为:{{product.minimumAdd+history[0].price}}</span>
+							<span class="col-4 mt-5" v-else id="myprice">您的出价为:{{product.minimumAdd+product.price}}</span>
+							<button class="btn bg-info" @click="chat(product.ownerid);">跟卖家聊天喽</button>
+						</div>
+						<div class="row mb-2">
+							<button class="btn bg-dark btn-lg col-6 offset-3"
+								v-if="product.state!='拍卖'" disabled="disabled">无法竞拍</button>
+							<button class="btn bg-danger btn-lg col-6 offset-3" v-else
+								@click="buy()" id="joinbuy">参与竞拍</button>
+						</div>
+					</div>
+					<!--送货地址  begin-->
+					<div style="margin-bottom: 5px;" id="addrDiv">
+						<a href="javascript:;" id="addAddr" class="text-success"
+							@click="addaddress()">添加新地址</a>
+						<ul class="list-group" id="address" v-if="addresses!=null">
+							<li class="list-group-item" v-for="(address,index) in addresses">
+								<input type="radio" :id="address.id" name="addr"
+								v-if="address.isdefault=='是'" checked="checked"> <input
+								type="radio" :id="address.id" name="addr" v-else> <label
+								for="address.id">&nbsp;{{address.adress}}&nbsp;&nbsp;{{address.aname}}&nbsp;&nbsp;{{address.phone}}&nbsp;
+							</label> <a href="javascript:;" class="text-success"
+								@click="delateaddress(address.id)">删除该地址</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row"></div>
+		<div class="row ml-2 mt-2">
+			<div class="col-8 offset-1">
+				<h2>历史竞拍记录</h2>
+				<table class="table table-striped">
+					<tr>
+						<!-- <th><input type="checkbox" class="checkbox" /></th> -->
+						<th>状态</th>
+						<th>出价昵称</th>
+						<th>价格</th>
+						<th>时间</th>
+					</tr>
+					<tr v-for="(his,index) in history">
+						<td v-if="index==0" style="color: red">领先</td>
+						<td v-else>出局</td>
+						<td>{{his.uname}}</td>
+						<td>{{his.price}}</td>
+						<td>{{his.time|dateTime}}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- <button onclick="send();"></button> -->
+	</div>
+
+
+	<!-- js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/timeto/jquery.time-to.min.js}"></script>
+	<script th:src="@{/moon/js/moment.min.js}"></script>
+	<script th:inline="javascript">
+	var pid=window.location.search.substring(4);
+		var app = new Vue(
+				{
+					el : "#app",
+					data : {
+						product : {},
+						imgs : [],
+						history : [],
+						addresses : [],
+						minadd : "",
+						currenprice : ""
+					},
+					methods : {
+						//获取地址栏id
+						getpid : function() {
+							var pid = window.location.search.substring(4);
+							//alert(pid);
+							var pid_reg = /^\d+$/;
+							if (pid_reg.test(pid)) {
+								this.pdetails(pid);
+								this.getHistory(pid);
+								this.showaddress();
+							}
+						},
+						pdetails : function(pid) {
+							$.post("/pp/Product/getdetail", {
+								"pid" : pid
+							}, function(data) {
+								//alert(JSON.stringify(data))
+								app.product = data;
+								app.currenprice = data.minimumAdd;
+								$('#countdown').timeTo(
+										{
+											timeTo : new Date(
+													parseInt(data.time)),
+											fontSize : 48,
+											callback : function() {
+												$('#joinbuy').attr('disabled',
+														'disabled');
+												$('#joinbuy').removeClass(
+														'bg-danger');
+												$('#joinbuy').addClass(
+														'bg-dark');
+												$('#joinbuy').text('竞拍结束');
+											}
+										});
+								//alert();
+								if (data != null && data.img != null)
+									app.imgs = data.img.split(",")
+							})
+						},
+						getHistory : function(pid) {
+							$.post("/pp/History/gethistory", {
+								"pid" : pid
+							}, function(data) {
+								//alert(app.product.minimumAdd);
+								//alert(JSON.stringify(data))
+								app.history = data.historylist;
+							})
+						},
+						myimg : function(e, img) {
+							$('#bigimg').attr("src",
+									"http://127.0.0.1/pro_img/" + img);
+							$('.myimgs').removeClass("active");
+							$(e).addClass("active");
+						},
+						buy : function() {
+							var radios = $('input[name="addr"]');
+							if (radios.length == 0) {
+								layer.msg("请添加地址");
+								return;
+							}
+							var aid = "";
+							radios.each(function(index, element) {
+								if ($(this).prop('checked')) {
+									aid = $(this).attr("id")
+									//alert(aid);
+								}
+							})
+							var addprice = parseInt($('#addprice').val());
+							//dangq
+							var minprice;
+							if (this.history == "")
+								minprice = this.product.price;
+							else
+								minprice = this.history[0].price;
+							var pid = this.product.id;
+
+							if (aid == "") {
+								layer.msg("地址不能为空");
+								return;
+							}
+
+							if (addprice < this.product.minimumAdd) {
+								layer.msg("加价幅度不能小于最小"
+										+ this.product.minimumAdd);
+								return;
+							}
+
+							var nowprice = minprice + addprice;
+
+							$.post("/pp/History/addHistory", {
+								"pid" : pid,
+								price : nowprice,
+								aid : aid
+							}, function(data) {
+								layer.msg(data);
+								if(data=="余额不足")
+									layer.confirm(
+											"余额不足200元,需要充值吗",
+											{btn:['确定','取消'],
+												btn1:function(){
+													console.log(data);
+													//location.href="/pp/User/pay?pid="+pid;
+													window.open("/pp/User/pay?pid="+pid);
+											},btn2:function(){
+												
+											}
+											})
+									
+							})
+
+						},
+						jian : function() {
+							var addprice = parseInt($('#addprice').val());
+							$('#addprice').val(
+									addprice - this.product.minimumAdd);
+							addprice = parseInt($('#addprice').val());
+							if (addprice < this.product.minimumAdd) {
+								layer.msg("加价幅度不能小于" + this.product.minimumAdd);
+								$('#addprice').val(this.product.minimumAdd);
+								return;
+							}
+
+							//当前价格
+							var minprice;
+							if (this.history == "")
+								minprice = this.product.price;
+							else
+								minprice = this.history[0].price;
+							var myprice = addprice + minprice;
+							$('#myprice').text("您的出价为:" + myprice);
+						},
+						jia : function() {
+							var addprice = parseInt($('#addprice').val());
+							$('#addprice').val(
+									addprice + this.product.minimumAdd);
+							addprice = parseInt($('#addprice').val());
+							//当前价格
+							var minprice;
+							if (this.history == "")
+								minprice = this.product.price;
+							else
+								minprice = this.history[0].price;
+							var myprice = addprice + minprice;
+							//alert(myprice)
+							$('#myprice').text("您的出价为:" + myprice);
+
+						},
+						addaddress : function() {
+							layer.open({
+								type : 2,
+								title : "选择收货地址",
+								content : "/addaddress",
+								area : [ "50%", "60%" ],
+								offset : "50px",
+								anim : 3,
+							});
+						},
+						delateaddress : function(aid) {
+							//alert(aid);
+							$.post("/pp/Address/delateaddress", {
+								aid : aid
+							}, function(data) {
+								if (data == "删除成功")
+									app.showaddress();
+								layer.msg(data);
+							});
+
+						},
+						showaddress : function() {
+							//alert(111);
+							$.post("/pp/Address/showaddress", {},
+									function(data) {
+										app.addresses = data;
+									})
+						},
+						instar : function() {
+							var pid = window.location.search.substring(4);
+							var pid_reg = /^\d+$/;
+							if (pid_reg.test(pid)) {
+								$.post("/pp/Star/findstar", {
+									pid : pid
+								}, function(data) {
+									if (data != "")
+										$('#star')
+										.html('<span class="star"><i id="change"class="fa fa-star" aria-hidden="true" style="color:#df3320"></i>&nbsp;&nbsp;已收藏&nbsp;&nbsp;</span>');
+									else{
+										$('#star')
+										.html('<span class="star"><i id="change"class="fa fa-star" aria-hidden="true" style="color:#fff"></i>&nbsp;&nbsp;加入收藏&nbsp;&nbsp;</span>');
+									}
+								});
+							} else {
+								layer.msg("商品id不是个数字");
+							}
+
+						/* 	*/},
+						outstar : function() {
+							$('#star').empty();
+						},
+						updatestar : function() {
+							var pid = window.location.search.substring(4);
+							var pid_reg = /^\d+$/;
+							if (pid_reg.test(pid)) {
+								$.post("/pp/Star/updatestar", {
+									pid : pid
+								}, function(data) {
+									layer.msg(data);
+									if (data == "取消收藏成功")
+										$('#change').css("color", "#fff");
+									if (data == "加入收藏成功")
+										$('#change').css("color", "#df3320");
+								});
+							} else {
+								layer.msg("商品id不是个数字");
+							}
+						},
+						chat:function(uid){
+							if([[${session.user.id}]]==uid)
+								layer.msg("这是您自己的商品");
+							else
+								location.href = "mymessage?id=" + uid;
+						}
+					},
+					filters : {
+						dateTime : function(value) {
+							return value == null ? '' : moment(value).format(
+									'YYYY-MM-DD HH:mm:ss');
+						},
+						date : function(value) {
+							return value == null ? '' : moment(value).format(
+									'YYYY-MM-DD');
+						}
+					},
+					mounted : function() {
+						this.getpid();
+
+					}
+				})
+		
+		/* var timer = setInterval(function() {
+			var pid = window.location.search.substring(4);
+			//alert(pid);
+			var pid_reg = /^\d+$/;
+			if (pid_reg.test(pid)) {
+				app.pdetails(pid);
+				app.getHistory(pid);
+			}
+		}, 5000); */ //每隔1s都会执行function
+		//websocket
+		var api="ws://"+location.host+"/sendhistory/"+pid;
+		var ws = new WebSocket(api); 
+		
+		ws.onopen = function() {
+			 console.log("ws打开");
+		}
+		ws.onclose = function() {
+			 console.log("ws关闭");
+		}
+		ws.onmessage=function(msg){
+			 console.log("接收到消息"+msg.data);
+			 if(msg.data=="update"){
+				 app.pdetails(pid);
+				 app.getHistory(pid);
+			 }
+		}
+		ws.onerror = function() {
+             console.log("websocket发生了错误");
+         }
+		function send(){	
+			ws.send("连接");
+			}
+	</script>
+</body>
+</html>

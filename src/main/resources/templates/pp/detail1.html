@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MOON</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+<link rel="stylesheet" th:href="@{/fangda/index.css}" />
+</head>
+<body class="s">
+	<div class="container-fluid" id="app">
+		<div class="row mt-2">
+			<!-- <div class="col text-center bg-warning text-white shadow">{{product.pname}}</div> -->
+			<div class="col-4">
+				<div class="wai">
+					<div class="one" @mouseover="over(this)" @mouseout="out(this)">
+						<img src="/moon/img/1_01.jpg" width="100%" height="auto" />
+						<span></span>
+					</div>
+					<div class="two">
+					
+					<img v-for="img in imgs" :src="'/Path/'+img" @click="img(this)" width="20%" height="20%"/>
+						<!-- <img v-for="img in imgs" :src="'/Path/'+img" width="20%" height="20%"/> -->
+						<!-- <img class="active" src="/moon/img/bg-a.jpg" width="20%" height="20%"/>
+						<img src="/moon/img/bg-a.jpg" width="20%" height="20%"/>
+						<img src="/moon/img/bg-a.jpg" width="20%" height="20%"/>			 -->
+					</div>
+					 <div class="the">
+						 <img src="/moon/img/1_01.jpg" />
+					</div> 
+				</div>
+				
+				
+				
+				
+				<!-- <div>
+					<img alt="hh" src="/moon/img/1_01.jpg" width="100%" height="auto">
+					<img  alt="" src="/moon/img/bg-a.jpg"width="20%" height="20%">
+					<img  alt="" src="/moon/img/bg-b.jpg"width="20%" height="20%">
+					<img  alt="" src="/moon/img/bg-c.jpg"width="20%" height="20%">
+					<img  alt="" src="/moon/img/bg-c.jpg"width="20%" height="20%">
+				</div> -->
+			</div>
+			<div class="col-8">
+				<div class="card">
+					<h3>{{product.pname}}</h3>
+					<h3>{{product.time}}</h3>
+					<div class="form-inline">
+						<input type="num" :value="product.price" :min="product.price">
+						<button>+</button>
+						<button>-</button>
+					</div>
+					<h3>{{product.minimumAdd}}</h3>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<!-- js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/moon/js/vue.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/fangda/index.js}"></script>	
+	<script th:inline="javascript">
+	var app = new Vue({
+		el:"#app",
+		data:{
+			product:{},
+			imgs:[],
+		},
+		methods:{
+			//获取地址栏id
+			getpid:function(){
+				var pid = window.location.search.substring(4);
+				//alert(pid);
+				var pid_reg = /^\d+$/;
+				if (pid_reg.test(pid)) {
+					this.pdetails(pid);
+				}
+			},
+			pdetails:function(pid){
+				$.post("/pp/Product/getdetail",
+						{
+					"pid":pid
+						},function(data){
+							//alert(JSON.stringify(data))
+							app.product=data;
+							//alert(data.img);
+							app.imgs=data.img.split(",")
+						})
+			},
+			img:function(e){
+				$(".one img").attr("src","/Path/"+app.imgs[i]);
+				$(".the img").attr("src","/Path/"+app.imgs[i]);
+				$(".two img").removeClass("active");
+				$(e).addClass("active");
+			},
+			over:function(a){
+				var evt = a || window.event;
+				//alert(evt)
+				$(".the").css('display','block')
+				var ot = evt.clientY-($(".one").offset().top- $(document).scrollTop())-87;
+				var ol = evt.clientX-($(".one").offset().left- $(document).scrollLeft())-87;
+				layer.msg(a.pageY)
+				layer.msg(a.pageX)
+				
+				if(ol<=0){
+					ol = 0;
+				}
+				if(ot<=0){
+					ot = 0;
+				}
+				if(ol>=175){
+					ol=175
+				}
+				if(ot>=175){
+					ot=175
+				}
+				
+				
+				
+				
+				$("span").css({'left':ol,'top':ot})
+				var ott = ot/350*800
+				
+				var oll = ol/350*800
+				
+				$(".the img").css({'left':-oll,'top':-ott})
+			},
+			out:function(a){
+				 $(".the").css('display','none')
+			}
+		},
+		mounted:function(){
+			this.getpid();
+			//alert("product"+this.product);
+			//alert(this.imgs);
+		}
+	})
+/* 	
+	$(function(){
+		var ione = $(".one"),
+			ithe = $(".the"),
+			itwo = $(".two img"),
+			tthe = $(".the img");
+		
+		itwo.each(function(i){
+			$(this).click(function(){
+				$(".one img").attr("src","/Path/"+app.imgs[i]);
+				tthe.attr("src","/Path/"+app.imgs[i]);
+				itwo.removeClass("active");
+				$(this).addClass("active");
+			}) 
+			
+			ione.mousemove(function(a){
+				
+			})
+			ione.mouseout(function(){
+			
+			})
+			
+		})
+	}) */
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>蜗牛拍拍</title>
+<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+<link rel="stylesheet" th:href="@{/menu/metisMenu.css}" />
+<link rel="stylesheet" th:href="@{/menu/vertical.css}" />
+
+</head>
+<body class="bg-c">
+	<div class="container-fluid h-100 mt-2" style="overflow: hidden;">
+		<!-- 标题栏 -->
+		<div class="row">
+			<div class="col"></div>
+			<div class="col">
+				<h5 class="text-center">
+					<i class="fa fa-gavel" aria-hidden="true"></i>&nbsp;蜗牛拍拍
+				</h5>
+			</div>
+			<div class="col text-right">
+				<div class="dropdown">
+					<button class="btn btn-sm btn-outline-success dropdown-toggle"
+						data-toggle="dropdown">
+						<i class="fa fa-user-o"></i>
+					</button>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="javascript:"
+							onclick="showCenter();">&nbsp;<span id="uname" th:text="${session.user}==null?'账号':${session.user.uname}"></span></a><a
+							class="dropdown-item" href="javascript:" onclick="logout();">&nbsp;注销</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="height: 1000px;">
+			<!-- 左侧 -->
+			<div class="col-sm-2">
+				<div class="sidebar-nav mt-1">
+					<div class="metismenu">
+						<ul>
+							<li><a href="javascript:" class="has-arrow" work="list2"
+								onclick="openWork(this);">拍拍商品</a></li>
+							<li><a href="javascript:" class="has-arrow" work="mystar"
+								onclick="openWork(this);">我的收藏</a></li>
+							
+							<li><a href="javascript:" class="has-arrow" work="buy"
+								onclick="openWork(this);">买家中心</a>
+								<!-- <ul>
+									<li><a href="javascript:" class="has-arrow" work="pp"
+										onclick="openWork(this);">我的拍拍</a>
+									</li>
+									
+								</ul> -->
+							</li>
+							<li><a href="javascript:" class="has-arrow" work="myproduct"
+								onclick="openWork(this);">卖家中心</a>
+								<ul>
+									<li><a href="javascript:" class="has-arrow" work="sale"
+										onclick="openWork(this);">我的订单</a>
+									</li>
+									<li><a href="javascript:" class="has-arrow" work="upload"
+										onclick="openWork(this);">添加商品</a>
+									</li>
+								</ul>
+							</li>
+							<li ><a href="javascript:" id="xiaoxi" class="has-arrow" work="mymessage?id=0"
+								onclick="openWork(this);">我的消息</a></li>
+							
+						</ul>
+					</div>
+				</div>
+			</div>
+		
+			<!-- 工作区 -->
+			<div class="col-sm-10">
+				<div id="work" class="h-100" style="margin-right: -32px;">
+					<iframe src="/openWork/list2" frameborder="1" width="100%"
+						height="100%"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 	js -->
+	<script th:src="@{/moon/js/jquery.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+	<script th:src="@{/menu/metisMenu.js}"></script>
+	<script th:src="@{/moon/js/popper.js}"></script>
+	<script th:src="@{/moon/js/bootstrap.js}"></script> 
+	<script th:inline="javascript">
+		//metisMenu
+		 $(".metismenu").metisMenu();
+	
+		//openWork
+		function openWork(obj) {
+			
+			var iframe = "<iframe src='/openWork/" + $(obj).attr("work")
+					+ "' frameborder=0 width=100% height=100%></iframe>";
+			$("#work").html(iframe);
+			if($(obj).attr("id")!="xiaoxi"&&[[${session.user}]]!=null){
+				var api="ws://"+location.host+"/sendmessage/"+[[${session.user.id}]];
+				var ws = new WebSocket(api); 
+				var num=0;
+				ws.onopen = function() {
+					 console.log("mws打开");
+					 num=1;
+				}
+				ws.onclose = function() {
+					 console.log( "mws关闭");
+				}
+				ws.onmessage=function(msg){
+					layer.open({
+						  title: '消息提醒',
+						  offset: 'rb',
+						  skin:"layui-layer-lan",
+						  closeBtn:0,
+						  time:5000,
+						  type: 1,
+						  area: ['340px', '215px'],
+						  content: JSON.parse(msg.data).text
+						});    
+					//$('#xiaoxi').css("background-color","yellow");
+				}
+			}
+		} 
+		//logout
+		 	function logout() {
+				if([[${session.user}]]!=null){
+					$.post("/pp/User/logout", {}, function(data) {
+						if (data == "success")
+							location.href = "/"
+							return;
+					})
+				}
+				layer.msg("当前未登录")
+				
+			} 
+	
+		 	//showCenter
+			function showCenter() {
+				 	if ([[${session.user}]]==null) {
+						location.href = "/login";
+						return;
+					} 
+				layer.open({
+					type : 2,
+					title:"信息更新",
+					content : "/updateInfo",
+					area : [ "80%", "99%" ]
+				});
+			} 
+			//websocket
+			//alert(location.host);
+		 	/* var api="ws://"+location.host+"/sendmessage/"+[[${session.user.id}]];
+			var ws = new WebSocket(api); 
+			var num=0;
+			ws.onopen = function() {
+				 console.log("mws打开");
+				 num=1;
+			}
+			ws.onclose = function() {
+				 console.log( "mws关闭");
+			}
+			ws.onmessage=function(msg){
+				layer.open({
+					  title: '消息提醒',
+					  offset: 'rb',
+					  skin:"layui-layer-lan",
+					  closeBtn:0,
+					  time:5000,
+					  type: 1,
+					  area: ['340px', '215px'],
+					  content: JSON.parse(msg.data).text
+					});    
+				//$('#xiaoxi').css("background-color","yellow");
+			} */
+	</script>
+	<!-- <script th:inline="javascript">
+
+		/* updateUser:function(){
+			$.ajax({
+		        type: "POST",
+		        dataType: "json",
+		        url: "/User/update" ,//url
+		        data: $('#update_form').serialize(),
+		        success: function (data) {
+		           if(data=="failure")
+		          	   layer.msg("update faile");
+		           else{
+		        	   vm.showdata();
+		           }
+		        },
+		        error : function() {
+		            layer.msg("异常！");
+		        }
+		    });
+		} */
+	</script> -->
+</body>
+</html>
